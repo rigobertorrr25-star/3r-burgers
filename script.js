@@ -42,9 +42,12 @@ function updateExplode(){
   if(explodeCopy)explodeCopy.style.opacity=1-Math.min(p/0.35,1);
 }
 
-window.addEventListener('scroll',()=>{
+const sceneImages=$$('[data-scene] .scene-image,.final-image');
+let ticking=false;
+function onFrame(){
+  ticking=false;
   nav.classList.toggle('scrolled',scrollY>40);
-  $$('[data-scene] .scene-image,.final-image').forEach(el=>{
+  sceneImages.forEach(el=>{
     const r=el.parentElement.getBoundingClientRect();
     const p=(r.top+innerHeight)/(innerHeight+r.height);
     const y=(p-.5)*-55;
@@ -53,8 +56,15 @@ window.addEventListener('scroll',()=>{
   updateExplode();
   const max=document.documentElement.scrollHeight-innerHeight;
   progressBar.style.width=`${max?(scrollY/max)*100:0}%`;
-},{passive:true});
-updateExplode();
+}
+function requestTick(){
+  if(ticking)return;
+  ticking=true;
+  requestAnimationFrame(onFrame);
+}
+window.addEventListener('scroll',requestTick,{passive:true});
+window.addEventListener('resize',requestTick,{passive:true});
+onFrame();
 
 $('.hamburger').addEventListener('click',()=>nav.classList.toggle('open'));
 $$('.site-nav nav a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
