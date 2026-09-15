@@ -74,12 +74,18 @@ const io=new IntersectionObserver(es=>{
 },{threshold:.12});
 $$('.product,.lineup-top,.final-copy').forEach(x=>{x.classList.add('reveal');io.observe(x)});
 
-$$('.image').forEach(el=>{
-  const src=el.dataset.src;if(!src)return;
-  const img=new Image();
-  img.onload=()=>el.style.backgroundImage=`url("${src}")`;
-  img.src=src;
-});
+const lazyIo=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target, src=el.dataset.src;
+    lazyIo.unobserve(el);
+    if(!src)return;
+    const img=new Image();
+    img.onload=()=>el.style.backgroundImage=`url("${src}")`;
+    img.src=src;
+  });
+},{rootMargin:'600px 0px'});
+$$('.image').forEach(el=>lazyIo.observe(el));
 
 $$('.product').forEach(card=>{
   const photo=$('.product-photo',card);

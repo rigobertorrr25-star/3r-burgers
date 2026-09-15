@@ -14,9 +14,9 @@
 .explode-copy{position:absolute;z-index:5;left:9vw;top:50%;transform:translateY(-50%);max-width:480px}
 .explode-copy h1{font-size:clamp(46px,6.6vw,104px)}
 .explode-rig{position:absolute;right:4vw;top:52%;transform:translateY(-50%);width:min(50vw,600px);height:min(50vw,600px)}
-.elayer{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 22px 40px #000b);will-change:transform,opacity}
+.elayer{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%);will-change:transform,opacity}
 .e-bottom-bun{z-index:1;width:93%}.e-patty{z-index:2;width:84%}.e-cheese{z-index:3;width:82%}.e-tomato{z-index:4;width:88%}.e-lettuce{z-index:5;width:95%}.e-top-bun{z-index:6;width:91%}
-.ebox{position:absolute;left:50%;top:50%;width:58%;z-index:10;opacity:0;transform:translate(-50%,-50%);filter:drop-shadow(0 28px 50px #000d)}
+.ebox{position:absolute;left:50%;top:50%;width:58%;z-index:10;opacity:0;transform:translate(-50%,-50%)}
 .ebox-copy{position:absolute;z-index:11;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;opacity:0;display:flex;flex-direction:column;align-items:center;gap:20px}
 .ebox-copy span{font-family:Anton;font-size:20px;letter-spacing:.08em;color:#fff}
 .explode-hint{position:absolute;z-index:5;bottom:38px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.22em;color:#999}
