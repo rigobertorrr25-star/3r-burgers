@@ -27,9 +27,26 @@ http.createServer((req, res) => {
     if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
       res.statusCode = 404; return res.end("404: " + rel);
     }
-    res.setHeader("Content-Type", MIME[path.extname(target).toLowerCase()] || "application/octet-stream");
+    const type = MIME[path.extname(target).toLowerCase()] || "application/octet-stream";
+    const size = fs.statSync(target).size;
+    res.setHeader("Content-Type", type);
     res.setHeader("Cache-Control", "no-store");
-    fs.createReadStream(target).pipe(res);
+    res.setHeader("Accept-Ranges", "bytes");
+
+    const range = req.headers.range;
+    if (range) {
+      const m = /^bytes=(\d*)-(\d*)$/.exec(range);
+      let start = m && m[1] ? parseInt(m[1], 10) : 0;
+      let end = m && m[2] ? parseInt(m[2], 10) : size - 1;
+      if (isNaN(start) || isNaN(end) || start > end || end >= size) { start = 0; end = size - 1; }
+      res.statusCode = 206;
+      res.setHeader("Content-Range", `bytes ${start}-${end}/${size}`);
+      res.setHeader("Content-Length", end - start + 1);
+      fs.createReadStream(target, { start, end }).pipe(res);
+    } else {
+      res.setHeader("Content-Length", size);
+      fs.createReadStream(target).pipe(res);
+    }
   } catch (e) { res.statusCode = 500; res.end("500: " + e.message); }
 }).listen(PORT, "127.0.0.1", () => {
   console.log("3R Burgers en http://localhost:" + PORT + "/");

@@ -8,38 +8,33 @@ window.addEventListener('load',()=>{
 const nav=$('.site-nav');
 const progressBar=$('.progress span');
 
-const explodeSection=$('.explode');
-const explodeCopy=$('.explode-copy');
-const ebox=$('.ebox');
-const eboxCopy=$('.ebox-copy');
+const scrubSection=$('.scrub');
+const scrubCopy=$('.scrub-copy');
+const scrubVideo=$('.scrub-video');
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const layers=$$('.elayer').map(el=>({
-  el,
-  restX:+el.dataset.restx, restY:+el.dataset.resty,
-  x:+el.dataset.x, y:+el.dataset.y, rot:+el.dataset.rot
-}));
+let scrubDuration=0;
 
-function updateExplode(){
-  if(!explodeSection)return;
-  const r=explodeSection.getBoundingClientRect();
-  const run=r.height-innerHeight;
-  const p=reduceMotion?1:Math.min(Math.max(-r.top/run,0),1);
-  const explodeP=Math.min(p/0.55,1);
-  const packP=Math.max((p-0.55)/0.45,0);
-  layers.forEach(({el,restX,restY,x,y,rot})=>{
-    const ex=(restX+x*explodeP)*(1-packP);
-    const ey=(restY+y*explodeP)*(1-packP);
-    const erot=rot*explodeP*(1-packP);
-    const scale=1-0.75*packP;
-    el.style.transform=`translate(-50%,-50%) translate(${ex}px,${ey}px) rotate(${erot}deg) scale(${scale})`;
-    el.style.opacity=1-packP;
-  });
-  if(ebox){
-    ebox.style.opacity=packP;
-    ebox.style.transform=`translate(-50%,-50%) translateY(${(1-packP)*50}px) scale(${0.82+0.18*packP})`;
+if(scrubVideo){
+  if(reduceMotion){
+    scrubVideo.loop=true;
+    scrubVideo.play().catch(()=>{});
+  }else if(scrubVideo.readyState>=1&&scrubVideo.duration){
+    scrubDuration=scrubVideo.duration;
+  }else{
+    scrubVideo.addEventListener('loadedmetadata',()=>{scrubDuration=scrubVideo.duration||0;},{once:true});
   }
-  if(eboxCopy)eboxCopy.style.opacity=Math.max((packP-0.4)/0.6,0);
-  if(explodeCopy)explodeCopy.style.opacity=1-Math.min(p/0.35,1);
+}
+
+function updateScrub(){
+  if(!scrubSection||!scrubVideo)return;
+  const r=scrubSection.getBoundingClientRect();
+  const run=r.height-innerHeight;
+  const p=Math.min(Math.max(-r.top/run,0),1);
+  if(!reduceMotion&&scrubDuration){
+    const t=p*scrubDuration;
+    if(Math.abs(scrubVideo.currentTime-t)>0.033)scrubVideo.currentTime=t;
+  }
+  if(scrubCopy)scrubCopy.style.opacity=1-Math.min(p/0.25,1);
 }
 
 const sceneImages=$$('[data-scene] .scene-image,.final-image');
@@ -53,7 +48,7 @@ function onFrame(){
     const y=(p-.5)*-55;
     el.style.transform=`scale(1.10) translate3d(0,${y}px,0)`;
   });
-  updateExplode();
+  updateScrub();
   const max=document.documentElement.scrollHeight-innerHeight;
   progressBar.style.width=`${max?(scrollY/max)*100:0}%`;
 }
