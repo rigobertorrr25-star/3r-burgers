@@ -18,10 +18,16 @@ if(scrubVideo){
   if(reduceMotion){
     scrubVideo.loop=true;
     scrubVideo.play().catch(()=>{});
-  }else if(scrubVideo.readyState>=1&&scrubVideo.duration){
-    scrubDuration=scrubVideo.duration;
   }else{
-    scrubVideo.addEventListener('loadedmetadata',()=>{scrubDuration=scrubVideo.duration||0;},{once:true});
+    // iOS Safari never decodes/paints a frame until playback has started at
+    // least once, even if you only ever set currentTime afterward — so kick
+    // off a muted play+immediate-pause just to force that first frame in.
+    scrubVideo.play().then(()=>scrubVideo.pause()).catch(()=>{});
+    if(scrubVideo.readyState>=1&&scrubVideo.duration){
+      scrubDuration=scrubVideo.duration;
+    }else{
+      scrubVideo.addEventListener('loadedmetadata',()=>{scrubDuration=scrubVideo.duration||0;},{once:true});
+    }
   }
 }
 
