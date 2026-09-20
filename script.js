@@ -19,10 +19,13 @@ if(scrubVideo){
     scrubVideo.loop=true;
     scrubVideo.play().catch(()=>{});
   }else{
-    // iOS Safari never decodes/paints a frame until playback has started at
-    // least once, even if you only ever set currentTime afterward — so kick
-    // off a muted play+immediate-pause just to force that first frame in.
-    scrubVideo.play().then(()=>scrubVideo.pause()).catch(()=>{});
+    // Mobile browsers (iOS Safari especially) won't decode/paint a frame
+    // until playback actually starts, even if you only ever set currentTime
+    // afterward — the "autoplay" attribute plus this pause-on-"playing"
+    // (more reliable than the play() promise, which some browsers never
+    // resolve/reject) forces that first frame in without visibly autoplaying.
+    scrubVideo.addEventListener('playing',()=>scrubVideo.pause(),{once:true});
+    scrubVideo.play().catch(()=>{});
     if(scrubVideo.readyState>=1&&scrubVideo.duration){
       scrubDuration=scrubVideo.duration;
     }else{
